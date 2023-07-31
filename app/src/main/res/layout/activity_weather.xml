@@ -24,6 +24,8 @@
 
                 <include layout="@layout/now" />
 
+                <include layout="@layout/hourly"/>
+
                 <include layout="@layout/forecaset" />
 
                 <include layout="@layout/life_index" />
