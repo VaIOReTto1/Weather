@@ -6,8 +6,11 @@ import android.graphics.Color
 import android.icu.text.SimpleDateFormat
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.ImageView
@@ -17,6 +20,7 @@ import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.GravityCompat
+import androidx.core.widget.NestedScrollView
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -27,6 +31,16 @@ import com.example.weather.R
 import com.example.weather.logic.model.HourlyForecast
 import com.example.weather.logic.model.Weather
 import com.example.weather.logic.model.getSky
+import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.components.Description
+import com.github.mikephil.charting.components.YAxis
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.formatter.DefaultValueFormatter
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
+import com.github.mikephil.charting.formatter.ValueFormatter
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 import java.util.Locale
 
 class WeatherActivity : AppCompatActivity() {
@@ -36,6 +50,11 @@ class WeatherActivity : AppCompatActivity() {
     private val hourlyForecastList = ArrayList<HourlyForecast>()
 
     private lateinit var hourlyAdapter: HourlyAdapter
+    lateinit var lineChart: LineChart
+
+    private var originalLeftMargin = 0
+    private var currentLeftMargin = 0
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,10 +68,13 @@ class WeatherActivity : AppCompatActivity() {
 
         val layoutManager = LinearLayoutManager(this)
         layoutManager.orientation = LinearLayoutManager.HORIZONTAL
-        val hourRecyclerView:RecyclerView=findViewById(R.id.hourRecyclerView)
+        val hourRecyclerView: RecyclerView =findViewById(R.id.hourRecyclerView)
         hourRecyclerView.layoutManager = layoutManager
         hourlyAdapter = HourlyAdapter(hourlyForecastList)
         hourRecyclerView.adapter = hourlyAdapter
+
+        lineChart= findViewById(R.id.lineChart)
+
 
         val swipeRefresh: SwipeRefreshLayout = findViewById(R.id.swipeRefresh)
 
@@ -81,6 +103,15 @@ class WeatherActivity : AppCompatActivity() {
         swipeRefresh.setOnRefreshListener {
             refreshWeather()
         }
+
+        hourRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                // 计算滚动的偏移量
+                val deltaX = dx
+                // 将NestedScrollView滚动偏移量累加
+                lineChart.scrollBy(deltaX,0)
+            }
+        })
 
         val navBtn: Button = findViewById(R.id.navBtn)
         val drawerLayout: DrawerLayout = findViewById(R.id.drawerLayout)
@@ -144,11 +175,14 @@ class WeatherActivity : AppCompatActivity() {
         }
         hourlyAdapter.notifyDataSetChanged()
 
+        setupLineChart(lineChart)
+        updateLineChartData(lineChart)
+
         //解决重复加载预报天数问题
         forecastLayout.removeAllViews()
 
         var days = daily.skycon.size
-        for (i in 1 until days) {
+        for (i in 0 until days) {
             val skycon = daily.skycon[i]
             val temperature = daily.temperature[i]
             val view = LayoutInflater.from(this).inflate(
@@ -182,4 +216,50 @@ class WeatherActivity : AppCompatActivity() {
         carWashingText.text = lifeIndex.carWashing[0].desc
         weatherLayout.visibility = View.VISIBLE
     }
+
+    private fun setupLineChart(lineChart: LineChart) {
+        lineChart.description = Description().apply { text = "" }
+        lineChart.setTouchEnabled(true)
+        lineChart.xAxis.isEnabled = false
+        lineChart.axisLeft.isEnabled = false
+        lineChart.axisRight.isEnabled = false
+        lineChart.setDrawGridBackground(false)
+        lineChart.setDrawGridBackground(false)
+        lineChart.isDragEnabled = true
+        lineChart.setScaleEnabled(true) // Allow scaling
+        lineChart.setPinchZoom(true)
+    }
+
+    private fun updateLineChartData(lineChart: LineChart) {
+        val entries = ArrayList<Entry>()
+        for ((index, forecast) in hourlyForecastList.withIndex()) {
+            entries.add(Entry(index.toFloat(), forecast.temVal))
+        }
+
+        val dataSet = LineDataSet(entries, "Temperature")
+        dataSet.lineWidth = 2f
+        dataSet.circleRadius = 4f
+        dataSet.valueTextSize = 12f
+
+        val lineDataSets = ArrayList<ILineDataSet>()
+        lineDataSets.add(dataSet)
+
+        val data = LineData(lineDataSets)
+        lineChart.data = data
+
+        dataSet.valueFormatter = object : ValueFormatter() {
+            override fun getFormattedValue(value: Float): String {
+                return value.toInt().toString()
+            }
+        }
+        dataSet.setDrawIcons(false)
+
+        lineChart.legend.isEnabled = false
+
+        //lineChart.setVisibleXRangeMaximum(11f)
+        lineChart.moveViewToX(hourlyForecastList.size.toFloat())
+
+        lineChart.invalidate()
+    }
 }
+

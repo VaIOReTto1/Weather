@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginStart="15dp"
@@ -24,10 +24,24 @@
             android:textColor="?android:attr/textColorPrimary"
             android:textSize="18sp" />
 
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/nestedScrollView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:descendantFocusability="blocksDescendants">
+
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/lineChart"
+                android:layout_width="1360dp"
+                android:layout_height="200dp"
+                android:layout_marginStart="15dp"
+                android:focusable="true"/>
+        </androidx.core.widget.NestedScrollView>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/hourRecyclerView"
-            android:layout_marginStart="5dp"
-            android:layout_height="match_parent"
-            android:layout_width="match_parent"/>
+            android:layout_width="match_parent"
+            android:paddingStart="5dp"
+            android:layout_height="match_parent"/>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

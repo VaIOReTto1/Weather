@@ -16,7 +16,7 @@ interface WeatherService {
     @GET("v2.6/${WeatherApplication.TOKEN}/{lng},{lat}/hourly?hourlysteps=24")
     fun getHourlyWeather(@Path("lng") lng: String, @Path("lat") lat: String): Call<HourlyResponse>
 
-    @GET("v2.6/${WeatherApplication.TOKEN}/{lng},{lat}/daily?dailysteps=16")
+    @GET("v2.6/${WeatherApplication.TOKEN}/{lng},{lat}/daily?dailysteps=15")
     fun getDailyWeather(@Path("lng") lng: String, @Path("lat") lat: String): Call<DailyResponse>
 
 

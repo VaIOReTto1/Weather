@@ -4,14 +4,6 @@
     android:layout_height="wrap_content"
     android:layout_margin="11dp">
 
-    <TextView
-        android:id="@+id/hourTemperatureInfo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:textSize="16sp"
-        android:layout_marginBottom="6dp"/>
-
     <ImageView
         android:id="@+id/hourSkyIcon"
         android:layout_width="20dp"

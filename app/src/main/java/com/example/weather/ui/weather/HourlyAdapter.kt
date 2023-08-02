@@ -16,7 +16,6 @@ import java.util.*
 class HourlyAdapter(private val hourlyForecastList: List<HourlyForecast>): RecyclerView.Adapter<HourlyAdapter.ViewHolder>() {
 
     inner class ViewHolder(view: View): RecyclerView.ViewHolder(view) {
-        val hourTemperatureInfo: TextView = view.findViewById(R.id.hourTemperatureInfo)
         val hourSkyIcon: ImageView = view.findViewById(R.id.hourSkyIcon)
         val hourDateInfo: TextView = view.findViewById(R.id.hourDateInfo)
     }
@@ -33,8 +32,6 @@ class HourlyAdapter(private val hourlyForecastList: List<HourlyForecast>): Recyc
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val hourlyForecast = hourlyForecastList[position]
-        val hourTemperatureInfoText = hourlyForecast.temVal.toInt()
-        holder.hourTemperatureInfo.text = "${hourTemperatureInfoText}°"
         val sky = getSky(hourlyForecast.skyVal)
         holder.hourSkyIcon.setImageResource(sky.icon)
         val simpleDateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
