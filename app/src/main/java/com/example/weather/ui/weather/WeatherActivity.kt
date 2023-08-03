@@ -6,11 +6,8 @@ import android.graphics.Color
 import android.icu.text.SimpleDateFormat
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.view.ViewTreeObserver
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.ImageView
@@ -20,7 +17,6 @@ import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.GravityCompat
-import androidx.core.widget.NestedScrollView
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -33,12 +29,9 @@ import com.example.weather.logic.model.Weather
 import com.example.weather.logic.model.getSky
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.Description
-import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
-import com.github.mikephil.charting.formatter.DefaultValueFormatter
-import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 import java.util.Locale
@@ -51,10 +44,6 @@ class WeatherActivity : AppCompatActivity() {
 
     private lateinit var hourlyAdapter: HourlyAdapter
     lateinit var lineChart: LineChart
-
-    private var originalLeftMargin = 0
-    private var currentLeftMargin = 0
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -208,24 +197,28 @@ class WeatherActivity : AppCompatActivity() {
         val dressingText: TextView = findViewById(R.id.dressingText)
         val ultravioletText: TextView = findViewById(R.id.ultravioletText)
         val carWashingText: TextView = findViewById(R.id.carWashingText)
+        val humidity:TextView=findViewById(R.id.humidityText)
+        val apprentTemperature:TextView=findViewById(R.id.apparentTemperatureText)
         val weatherLayout: ScrollView = findViewById(R.id.weatherLayout)
 
         coldRiskText.text = lifeIndex.coldRisk[0].desc
         dressingText.text = lifeIndex.dressing[0].desc
         ultravioletText.text = lifeIndex.ultraviolet[0].desc
         carWashingText.text = lifeIndex.carWashing[0].desc
+        humidity.text=realtime.humidity
+        apprentTemperature.text=realtime.apparent_temperature
         weatherLayout.visibility = View.VISIBLE
     }
 
     private fun setupLineChart(lineChart: LineChart) {
         lineChart.description = Description().apply { text = "" }
-        lineChart.setTouchEnabled(true)
         lineChart.xAxis.isEnabled = false
         lineChart.axisLeft.isEnabled = false
         lineChart.axisRight.isEnabled = false
         lineChart.setDrawGridBackground(false)
         lineChart.setDrawGridBackground(false)
         lineChart.isDragEnabled = true
+        lineChart.setTouchEnabled(false)
         lineChart.setScaleEnabled(true) // Allow scaling
         lineChart.setPinchZoom(true)
     }
@@ -256,7 +249,6 @@ class WeatherActivity : AppCompatActivity() {
 
         lineChart.legend.isEnabled = false
 
-        //lineChart.setVisibleXRangeMaximum(11f)
         lineChart.moveViewToX(hourlyForecastList.size.toFloat())
 
         lineChart.invalidate()
