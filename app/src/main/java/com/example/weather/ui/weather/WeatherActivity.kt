@@ -6,27 +6,35 @@ import android.graphics.Color
 import android.icu.text.SimpleDateFormat
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.weather.R
+import com.example.weather.logic.PlaceDatabase
 import com.example.weather.logic.model.HourlyForecast
 import com.example.weather.logic.model.Weather
 import com.example.weather.logic.model.getSky
+import com.example.weather.ui.place.PlaceAdapter
+import com.example.weather.ui.place.PlaceFragment
+import com.example.weather.ui.place.PlaceHistoryAdapter
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.Description
 import com.github.mikephil.charting.data.Entry
@@ -76,7 +84,7 @@ class WeatherActivity : AppCompatActivity() {
         if (viewModel.placeName.isEmpty())
             viewModel.placeName = intent.getStringExtra("place_name") ?: ""
 
-        viewModel.weatherLiveData.observe(this, Observer { result ->
+        viewModel.weatherLiveData.observe(this) { result ->
             val weather = result.getOrNull()
             if (weather != null)
                 showWeatherInfo(weather)
@@ -86,7 +94,7 @@ class WeatherActivity : AppCompatActivity() {
             }
 
             swipeRefresh.isRefreshing = false
-        })
+        }
         swipeRefresh.setColorSchemeResources(R.color.colorPrimary)
         refreshWeather()
         swipeRefresh.setOnRefreshListener {
@@ -96,9 +104,8 @@ class WeatherActivity : AppCompatActivity() {
         hourRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 // 计算滚动的偏移量
-                val deltaX = dx
                 // 将NestedScrollView滚动偏移量累加
-                lineChart.scrollBy(deltaX,0)
+                lineChart.scrollBy(dx, 0)
             }
         })
 
@@ -113,9 +120,25 @@ class WeatherActivity : AppCompatActivity() {
 
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
 
-            override fun onDrawerOpened(drawerView: View) {}
+            override fun onDrawerOpened(drawerView: View) {
+                val placeDatabaseHelper=PlaceDatabase(this@WeatherActivity)
+                val placeFragment = supportFragmentManager.findFragmentById(R.id.placeFragment) as PlaceFragment
+                val historyPlaces = placeDatabaseHelper.getHistoryPlaces()
+                val historyAdapter = PlaceHistoryAdapter(placeFragment, historyPlaces)
+                placeFragment.updateRecyclerViewAdapter(historyAdapter)
+            }
 
+            @SuppressLint("NotifyDataSetChanged")
             override fun onDrawerClosed(drawerView: View) {
+                refreshWeather()
+                val placeDatabaseHelper=PlaceDatabase(this@WeatherActivity)
+                val placeFragment = supportFragmentManager.findFragmentById(R.id.placeFragment) as PlaceFragment
+                val historyPlaces = placeDatabaseHelper.getHistoryPlaces()
+                val historyAdapter = PlaceHistoryAdapter(placeFragment, historyPlaces)
+                Handler(Looper.getMainLooper()).postDelayed({
+                    placeFragment.updateRecyclerViewAdapter(historyAdapter)
+                }, 100)
+                refreshWeather()
                 val manager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 manager.hideSoftInputFromWindow(
                     drawerView.windowToken,
@@ -126,6 +149,7 @@ class WeatherActivity : AppCompatActivity() {
     }
 
     fun refreshWeather() {
+        Log.d("WeatherActivity",viewModel.locationLng+","+viewModel.locationLat)
         viewModel.refreshWeather(viewModel.locationLng, viewModel.locationLat)
         val swipeRefresh: SwipeRefreshLayout = findViewById(R.id.swipeRefresh)
         swipeRefresh.isRefreshing = true
@@ -170,7 +194,7 @@ class WeatherActivity : AppCompatActivity() {
         //解决重复加载预报天数问题
         forecastLayout.removeAllViews()
 
-        var days = daily.skycon.size
+        val days = daily.skycon.size
         for (i in 0 until days) {
             val skycon = daily.skycon[i]
             val temperature = daily.temperature[i]
@@ -197,16 +221,12 @@ class WeatherActivity : AppCompatActivity() {
         val dressingText: TextView = findViewById(R.id.dressingText)
         val ultravioletText: TextView = findViewById(R.id.ultravioletText)
         val carWashingText: TextView = findViewById(R.id.carWashingText)
-        val humidity:TextView=findViewById(R.id.humidityText)
-        val apprentTemperature:TextView=findViewById(R.id.apparentTemperatureText)
         val weatherLayout: ScrollView = findViewById(R.id.weatherLayout)
 
         coldRiskText.text = lifeIndex.coldRisk[0].desc
         dressingText.text = lifeIndex.dressing[0].desc
         ultravioletText.text = lifeIndex.ultraviolet[0].desc
         carWashingText.text = lifeIndex.carWashing[0].desc
-        humidity.text=realtime.humidity
-        apprentTemperature.text=realtime.apparent_temperature
         weatherLayout.visibility = View.VISIBLE
     }
 

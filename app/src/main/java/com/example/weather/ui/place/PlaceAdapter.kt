@@ -6,9 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
-import com.example.weather.MainActivity
 import com.example.weather.R
 import com.example.weather.logic.model.Place
 import com.example.weather.ui.weather.WeatherActivity
@@ -34,6 +32,7 @@ class PlaceAdapter(private val fragment: PlaceFragment, private val placeList: L
                 activity.viewModel.locationLng=place.location.lng
                 activity.viewModel.locationLat=place.location.lat
                 activity.viewModel.placeName=place.name
+                fragment.placeDatabaseHelper.insertPlace(place)
                 activity.refreshWeather()
             }else{
                 val intent= Intent(parent.context,WeatherActivity::class.java).apply {
@@ -41,6 +40,7 @@ class PlaceAdapter(private val fragment: PlaceFragment, private val placeList: L
                     putExtra("location_lat",place.location.lat)
                     putExtra("place_name",place.name)
                 }
+                fragment.placeDatabaseHelper.insertPlace(place)
                 fragment.startActivity(intent)
                 activity?.finish()
             }
