@@ -29,14 +29,41 @@ class PlaceDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {}
 
     fun insertPlace(place: Place) {
-        Log.d("PlaceDatabase",place.name)
+        val existingPlace = getPlaceByName(place.name)
+        if (existingPlace != null) {
+            deletePlace(existingPlace)
+        }
+
         val values = ContentValues().apply {
             put(COLUMN_NAME, place.name)
             put(COLUMN_LAT, place.location.lat)
             put(COLUMN_LNG, place.location.lng)
-            put(COLUMN_ADDRESS,place.address)
+            put(COLUMN_ADDRESS, place.address)
         }
         writableDatabase.insert(TABLE_NAME, null, values)
+        Log.d("PlaceDatabase", "Place inserted: ${place.name}")
+    }
+
+    private fun getPlaceByName(name: String): Place? {
+        val query = "SELECT * FROM $TABLE_NAME WHERE $COLUMN_NAME = ?"
+        val cursor = readableDatabase.rawQuery(query, arrayOf(name))
+        val place = if (cursor.moveToFirst()) {
+            val lat = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_LAT))
+            val lng = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_LNG))
+            val address = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_ADDRESS))
+            Place(name, Location(lat, lng), address)
+        } else {
+            null
+        }
+        cursor.close()
+        return place
+    }
+
+    fun deletePlace(place: Place) {
+        val whereClause = "$COLUMN_NAME = ?"
+        val whereArgs = arrayOf(place.name)
+        writableDatabase.delete(TABLE_NAME, whereClause, whereArgs)
+        Log.d("PlaceDatabase", "Place deleted: ${place.name}")
     }
 
     fun getHistoryPlaces(): List<Place> {

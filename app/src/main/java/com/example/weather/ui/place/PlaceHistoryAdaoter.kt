@@ -5,7 +5,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weather.R
@@ -18,12 +20,28 @@ class PlaceHistoryAdapter(private val fragment: PlaceFragment, private val place
     inner class ViewHolder(view: View):RecyclerView.ViewHolder(view){
         val placeName:TextView=view.findViewById(R.id.placeHistoryName)
         val placeAddress:TextView=view.findViewById(R.id.placeHistoryAddress)
+        val deleteButton: ImageButton = view.findViewById(R.id.deleteButton)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.place_history_item, parent, false)
 
         val holder=ViewHolder(view)
+        holder.deleteButton.setOnClickListener {
+            val activity=fragment.activity
+            if (activity is WeatherActivity) {
+                activity.refreshWeather()
+                val position = holder.adapterPosition
+                val place = placeList[position]
+                // Call a method to delete the place from the database
+                if (place.name==activity.viewModel.placeName)
+                    Toast.makeText(activity,"不能删去正在显示的天气",Toast.LENGTH_SHORT).show()
+                else{
+                    fragment.deletePlace(place)
+                    notifyItemRemoved(position)
+                }
+            }
+        }
         holder.itemView.setOnClickListener {
             val position=holder.adapterPosition
             val place=placeList[position]

@@ -7,6 +7,14 @@
     android:layout_margin="12dp"
     app:cardCornerRadius="4dp">
 
+    <ImageButton
+        android:id="@+id/deleteButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|top"
+        android:src="@mipmap/abc_scrubber_primary_mtrl_alpha" />
+
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

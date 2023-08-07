@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.weather.MainActivity
 import com.example.weather.R
 import com.example.weather.logic.PlaceDatabase
+import com.example.weather.logic.model.Place
 import com.example.weather.ui.weather.WeatherActivity
 
 class PlaceFragment : Fragment() {
@@ -61,6 +62,8 @@ class PlaceFragment : Fragment() {
         val searchPlaceEdit: EditText = view.findViewById(R.id.searchPlaceEdit)
         val bgImageView: ImageView = view.findViewById(R.id.bgImageView)
 
+        recyclerView.visibility = View.GONE
+        bgImageView.visibility = View.VISIBLE
 
         placeDatabaseHelper = PlaceDatabase(requireContext())
 
@@ -144,5 +147,14 @@ class PlaceFragment : Fragment() {
         recyclerView?.adapter = historyAdapter
         // Clear the input text in the EditText and remove the focus
         searchPlaceEdit?.text?.clear()
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun deletePlace(place: Place) {
+        val database = PlaceDatabase(requireContext())
+        database.deletePlace(place)
+        val historyPlaces = placeDatabaseHelper.getHistoryPlaces()
+        historyAdapter = PlaceHistoryAdapter(this, historyPlaces)
+        historyAdapter.notifyDataSetChanged()
     }
 }
