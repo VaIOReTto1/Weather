@@ -221,12 +221,16 @@ class WeatherActivity : AppCompatActivity() {
         val dressingText: TextView = findViewById(R.id.dressingText)
         val ultravioletText: TextView = findViewById(R.id.ultravioletText)
         val carWashingText: TextView = findViewById(R.id.carWashingText)
+        val humidity:TextView=findViewById(R.id.humidityText)
+        val apprentTemperature:TextView=findViewById(R.id.apparentTemperatureText)
         val weatherLayout: ScrollView = findViewById(R.id.weatherLayout)
 
         coldRiskText.text = lifeIndex.coldRisk[0].desc
         dressingText.text = lifeIndex.dressing[0].desc
         ultravioletText.text = lifeIndex.ultraviolet[0].desc
         carWashingText.text = lifeIndex.carWashing[0].desc
+        humidity.text=realtime.humidity
+        apprentTemperature.text=realtime.apparent_temperature
         weatherLayout.visibility = View.VISIBLE
     }
 
