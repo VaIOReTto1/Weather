@@ -20,10 +20,12 @@ import android.widget.RelativeLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -32,6 +34,7 @@ import com.example.weather.logic.PlaceDatabase
 import com.example.weather.logic.model.HourlyForecast
 import com.example.weather.logic.model.Weather
 import com.example.weather.logic.model.getSky
+import com.example.weather.logic.network.WeatherNetwork
 import com.example.weather.ui.place.PlaceAdapter
 import com.example.weather.ui.place.PlaceFragment
 import com.example.weather.ui.place.PlaceHistoryAdapter
@@ -42,6 +45,8 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import java.util.Locale
 
 class WeatherActivity : AppCompatActivity() {
@@ -156,7 +161,33 @@ class WeatherActivity : AppCompatActivity() {
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private fun showWeatherInfo(weather: Weather) {
+    fun showWeatherInfo(weather: Weather) {
+        lifecycleScope.launch {
+            try {
+                val alterButton:Button=findViewById(R.id.alterButton)
+                val deferredAlter =  WeatherNetwork.getAlterWeather(viewModel.locationLng, viewModel.locationLat)
+                val title= deferredAlter.result.alert?.content?.get(0)?.title
+                val description=deferredAlter.result.alert?.content?.get(0)?.description
+
+                if (title!=null){
+                    Log.d("WeatherActivity",title)
+                    alterButton.text=title
+                    alterButton.setOnClickListener {
+                        val builder = AlertDialog.Builder(this@WeatherActivity)
+                        builder.setTitle(title)
+                        builder.setMessage("\n"+description)
+                        builder.setPositiveButton("OK", null)
+                        val dialog = builder.create()
+                        dialog.show()
+                    }
+                    alterButton.visibility=View.VISIBLE
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                // 处理获取警报信息失败的情况
+            }
+        }
+
         val placeName: TextView = findViewById(R.id.placeName)
         placeName.text = viewModel.placeName
         val realtime = weather.realtime

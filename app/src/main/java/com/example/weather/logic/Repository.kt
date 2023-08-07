@@ -1,6 +1,5 @@
 package com.example.weather.logic
 
-import android.util.Log
 import androidx.lifecycle.liveData
 import com.example.weather.logic.dao.PlaceDao
 import com.example.weather.logic.model.Place
@@ -33,15 +32,19 @@ object Repository {
             val deferredDaily = async {
                 WeatherNetwork.getDailyWeather(lng, lat)
             }
-            val deferredhour=async {
-                WeatherNetwork.getHourlyWeather(lng,lat)
+            val deferredHour = async {
+                WeatherNetwork.getHourlyWeather(lng, lat)
             }
             val realtimeResponse = deferredRealtime.await()
             val dailyResponse = deferredDaily.await()
-            val hourlyResponse=deferredhour.await()
+            val hourlyResponse = deferredHour.await()
             if (realtimeResponse.status == "ok" && dailyResponse.status == "ok") {
                 val weather =
-                    Weather(realtimeResponse.result.realtime, dailyResponse.result.daily,hourlyResponse.result.hourly)
+                    Weather(
+                        realtimeResponse.result.realtime,
+                        dailyResponse.result.daily,
+                        hourlyResponse.result.hourly,
+                    )
                 Result.success(weather)
             } else {
                 Result.failure(
@@ -64,9 +67,9 @@ object Repository {
             emit(result)
         }
 
-    fun savePlace(place: Place)=PlaceDao.savePlace(place)
+    fun savePlace(place: Place) = PlaceDao.savePlace(place)
 
-    fun getSavePlace()=PlaceDao.getSavedPlace()
+    fun getSavePlace() = PlaceDao.getSavedPlace()
 
-    fun isPlaceSaved()=PlaceDao.isPlaceSaved()
+    fun isPlaceSaved() = PlaceDao.isPlaceSaved()
 }
