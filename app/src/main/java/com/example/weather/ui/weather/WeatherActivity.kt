@@ -74,6 +74,7 @@ class WeatherActivity : AppCompatActivity() {
         hourRecyclerView.layoutManager = layoutManager
         hourlyAdapter = HourlyAdapter(hourlyForecastList)
         hourRecyclerView.adapter = hourlyAdapter
+        var weather:Weather?
 
         lineChart= findViewById(R.id.lineChart)
 
@@ -90,9 +91,9 @@ class WeatherActivity : AppCompatActivity() {
             viewModel.placeName = intent.getStringExtra("place_name") ?: ""
 
         viewModel.weatherLiveData.observe(this) { result ->
-            val weather = result.getOrNull()
+            weather = result.getOrNull()
             if (weather != null)
-                showWeatherInfo(weather)
+                showWeatherInfo(weather!!)
             else {
                 Toast.makeText(this, "无法成功获取天气信息", Toast.LENGTH_SHORT).show()
                 result.exceptionOrNull()?.printStackTrace()
@@ -154,40 +155,38 @@ class WeatherActivity : AppCompatActivity() {
     }
 
     fun refreshWeather() {
-        Log.d("WeatherActivity",viewModel.locationLng+","+viewModel.locationLat)
         viewModel.refreshWeather(viewModel.locationLng, viewModel.locationLat)
+        Log.d("WeatherActivity",viewModel.locationLng)
         val swipeRefresh: SwipeRefreshLayout = findViewById(R.id.swipeRefresh)
         swipeRefresh.isRefreshing = true
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    fun showWeatherInfo(weather: Weather) {
+        val alterButton:Button=findViewById(R.id.alterButton)
+        alterButton.visibility=View.GONE
         lifecycleScope.launch {
             try {
-                val alterButton:Button=findViewById(R.id.alterButton)
-                val deferredAlter =  WeatherNetwork.getAlterWeather(viewModel.locationLng, viewModel.locationLat)
-                val title= deferredAlter.result.alert?.content?.get(0)?.title
-                val description=deferredAlter.result.alert?.content?.get(0)?.description
-
-                if (title!=null){
-                    Log.d("WeatherActivity",title)
-                    alterButton.text=title
+                val deferredAlter = WeatherNetwork.getAlterWeather(viewModel.locationLng, viewModel.locationLat)
+                if (deferredAlter.result.alert?.content!=null) {
+                    val title = deferredAlter.result.alert.content[0]?.title
+                    val description = deferredAlter.result.alert.content[0]?.description
+                    alterButton.visibility = View.GONE
+                    alterButton.text = title
                     alterButton.setOnClickListener {
                         val builder = AlertDialog.Builder(this@WeatherActivity)
                         builder.setTitle(title)
-                        builder.setMessage("\n"+description)
+                        builder.setMessage("\n" + description)
                         builder.setPositiveButton("OK", null)
                         val dialog = builder.create()
                         dialog.show()
                     }
-                    alterButton.visibility=View.VISIBLE
+                    alterButton.visibility = View.VISIBLE
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                // 处理获取警报信息失败的情况
             }
         }
+    }
 
+    @SuppressLint("NotifyDataSetChanged")
+    fun showWeatherInfo(weather: Weather) {
         val placeName: TextView = findViewById(R.id.placeName)
         placeName.text = viewModel.placeName
         val realtime = weather.realtime
