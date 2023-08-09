@@ -1,5 +1,6 @@
 package com.example.weather.logic
 
+import android.util.Log
 import androidx.lifecycle.liveData
 import com.example.weather.logic.dao.PlaceDao
 import com.example.weather.logic.model.Place
@@ -43,7 +44,7 @@ object Repository {
                     Weather(
                         realtimeResponse.result.realtime,
                         dailyResponse.result.daily,
-                        hourlyResponse.result.hourly,
+                        hourlyResponse.result.hourly
                     )
                 Result.success(weather)
             } else {

@@ -72,7 +72,6 @@ class PlaceFragment : Fragment() {
         adapter = PlaceAdapter(this, viewModel.placeList)
         historyAdapter = PlaceHistoryAdapter(this, historyPlaces)
         if (historyPlaces.isNotEmpty()) {
-            Log.d("PlaceFragment", "hhh")
             recyclerView.visibility = View.VISIBLE
             bgImageView.visibility = View.GONE
             recyclerView.adapter = historyAdapter

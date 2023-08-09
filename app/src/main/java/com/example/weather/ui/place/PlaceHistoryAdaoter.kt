@@ -35,11 +35,11 @@ class PlaceHistoryAdapter(private val fragment: PlaceFragment, private val place
                 // Call a method to delete the place from the database
                 if (place.name==activity.viewModel.placeName)
                     Toast.makeText(activity,"不能删去正在显示的天气",Toast.LENGTH_SHORT).show()
-                else{
-                    activity.findViewById<DrawerLayout>(R.id.drawerLayout).closeDrawers()
-                    fragment.deletePlace(place)
-                    notifyItemRemoved(position)
-                }
+//                else{
+//                    activity.findViewById<DrawerLayout>(R.id.drawerLayout).closeDrawers()
+//                    fragment.deletePlace(place)
+//                    notifyItemRemoved(position)
+//                }
             }
         }
         holder.itemView.setOnClickListener {
@@ -50,7 +50,7 @@ class PlaceHistoryAdapter(private val fragment: PlaceFragment, private val place
                 activity.viewModel.locationLng=place.location.lng
                 activity.viewModel.locationLat=place.location.lat
                 activity.viewModel.placeName=place.name
-                activity.findViewById<DrawerLayout>(R.id.drawerLayout).closeDrawers()
+//                activity.findViewById<DrawerLayout>(R.id.drawerLayout).closeDrawers()
             }else{
                 val intent= Intent(parent.context,WeatherActivity::class.java).apply {
                     putExtra("location_lng",place.location.lng)
