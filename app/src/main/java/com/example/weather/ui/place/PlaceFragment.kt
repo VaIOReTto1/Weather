@@ -3,12 +3,10 @@ package com.example.weather.ui.place
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
-import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
@@ -24,7 +22,7 @@ import com.example.weather.ui.weather.WeatherActivity
 
 class PlaceFragment : Fragment() {
 
-    val viewModel by lazy { ViewModelProvider(this).get(PlaceViewModel::class.java) }
+    val viewModel by lazy { ViewModelProvider(this)[PlaceViewModel::class.java] }
 
     private lateinit var adapter: PlaceAdapter
 
@@ -33,7 +31,6 @@ class PlaceFragment : Fragment() {
     lateinit var placeDatabaseHelper: PlaceDatabase
 
     private var lastSearchText = ""
-
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -48,6 +45,7 @@ class PlaceFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val layoutManager = LinearLayoutManager(activity)
 
+        //判断是否为初次打开软件
         if ((activity as MainActivity).open=="1") {
             val intent = Intent(context, WeatherActivity::class.java)
             startActivity(intent)
@@ -74,6 +72,7 @@ class PlaceFragment : Fragment() {
             recyclerView.adapter = historyAdapter
         }
 
+        //判断显示历史记录还是搜索结果
         searchPlaceEdit.setOnFocusChangeListener { _, hasFocus ->
             viewModel.placeList.clear()
             if (hasFocus) {
@@ -129,20 +128,6 @@ class PlaceFragment : Fragment() {
             }
 
         }
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    fun updateRecyclerViewAdapter(historyAdapter: PlaceHistoryAdapter) {
-        val recyclerView = view?.findViewById<RecyclerView>(R.id.recycleView)
-        val searchPlaceEdit = view?.findViewById<EditText>(R.id.searchPlaceEdit)
-        val bgImageView=view?.findViewById<ImageView>(R.id.bgImageView)
-
-        recyclerView?.visibility = View.VISIBLE
-        bgImageView?.visibility = View.GONE
-        // Update RecyclerView's adapter first
-        recyclerView?.adapter = historyAdapter
-        // Clear the input text in the EditText and remove the focus
-        searchPlaceEdit?.text?.clear()
     }
 
     @SuppressLint("NotifyDataSetChanged")

@@ -8,7 +8,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -24,7 +23,6 @@ import com.example.weather.logic.PlaceDatabase
 import com.example.weather.logic.model.Place
 import com.example.weather.logic.model.Weather
 import com.example.weather.logic.network.WeatherNetwork
-import com.example.weather.ui.place.PlaceFragment
 import kotlinx.coroutines.launch
 
 class WeatherActivity : AppCompatActivity() {
@@ -40,21 +38,19 @@ class WeatherActivity : AppCompatActivity() {
         val placeDatabaseHelper = PlaceDatabase(this)
         val historyPlaces = placeDatabaseHelper.getHistoryPlaces()
 
+        //创建viewpager
         val viewPager: ViewPager2 = findViewById(R.id.viewPager)
         val indicatorRecyclerView: RecyclerView = findViewById(R.id.indicatorRecyclerView)
-
-        // Create the WeatherPagerAdapter
         val weatherAdapter = WeatherPagerAdapter(this)
         viewPager.adapter = weatherAdapter
 
-        // Set the LinearLayoutManager for the indicatorRecyclerView
+        //创建指示标
         val layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         indicatorRecyclerView.layoutManager = layoutManager
-
-        // Create and set the IndicatorAdapter
         val indicatorAdapter = IndicatorAdapter(weatherAdapter.itemCount)
         indicatorRecyclerView.adapter = indicatorAdapter
 
+        //进入搜索页面
         val addButton: ImageButton =findViewById(R.id.addButton)
         addButton.setOnClickListener {
             intent= Intent(this,MainActivity::class.java).apply {
@@ -63,6 +59,7 @@ class WeatherActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        //获取位置更新toolbar标题
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 indicatorAdapter.setSelectedPosition(position)
@@ -104,8 +101,8 @@ class IndicatorViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
 class WeatherPagerAdapter(private val activity: AppCompatActivity) :
     FragmentStateAdapter(activity) {
-    val placeDatabaseHelper = PlaceDatabase(activity)
-    val historyPlaces = placeDatabaseHelper.getHistoryPlaces()
+    private val placeDatabaseHelper = PlaceDatabase(activity)
+    private val historyPlaces = placeDatabaseHelper.getHistoryPlaces()
     override fun getItemCount(): Int = historyPlaces.size
     override fun createFragment(position: Int): Fragment {
         if (position < 0 || position >= historyPlaces.size) {
@@ -115,6 +112,7 @@ class WeatherPagerAdapter(private val activity: AppCompatActivity) :
         return createWeatherFragment(historyPlaces[position])
     }
 
+    //获取天气数据
     private suspend fun fetchWeather(place: Place): Weather? {
         return try {
             val deferredRealtime = WeatherNetwork.getRealtimeWeather(place.location.lng, place.location.lat)

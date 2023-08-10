@@ -44,6 +44,7 @@ class PlaceDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
         Log.d("PlaceDatabase", "Place inserted: ${place.name}")
     }
 
+    //判断是否已存在该数据
     private fun getPlaceByName(name: String): Place? {
         val query = "SELECT * FROM $TABLE_NAME WHERE $COLUMN_NAME = ?"
         val cursor = readableDatabase.rawQuery(query, arrayOf(name))

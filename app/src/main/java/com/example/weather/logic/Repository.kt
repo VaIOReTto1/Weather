@@ -1,6 +1,5 @@
 package com.example.weather.logic
 
-import android.util.Log
 import androidx.lifecycle.liveData
 import com.example.weather.logic.dao.PlaceDao
 import com.example.weather.logic.model.Place
@@ -59,11 +58,11 @@ object Repository {
     }
 
     private fun <T> fire(context: CoroutineContext, block: suspend () -> Result<T>) =
-        liveData<Result<T>>(context) {
+        liveData(context) {
             val result = try {
                 block()
             } catch (e: Exception) {
-                Result.failure<T>(e)
+                Result.failure(e)
             }
             emit(result)
         }

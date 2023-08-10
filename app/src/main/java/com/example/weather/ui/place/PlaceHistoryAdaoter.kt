@@ -1,14 +1,11 @@
 package com.example.weather.ui.place
 
 import android.content.Intent
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
-import android.widget.Toast
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weather.R
 import com.example.weather.logic.model.Place
@@ -28,6 +25,8 @@ class PlaceHistoryAdapter(private val fragment: PlaceFragment, private val place
             LayoutInflater.from(parent.context).inflate(R.layout.place_history_item, parent, false)
 
         val holder = ViewHolder(view)
+
+        //删除天气
         holder.deleteButton.setOnClickListener {
             val activity = fragment.activity
             if (activity is WeatherActivity) {
@@ -37,6 +36,8 @@ class PlaceHistoryAdapter(private val fragment: PlaceFragment, private val place
                 notifyItemRemoved(position)
             }
         }
+
+        //进入天气
         holder.itemView.setOnClickListener {
             val position = holder.adapterPosition
             val place = placeList[position]
@@ -47,11 +48,7 @@ class PlaceHistoryAdapter(private val fragment: PlaceFragment, private val place
                 activity.viewModel.placeName = place.name
 
             } else {
-                val intent = Intent(parent.context, WeatherActivity::class.java).apply {
-                    putExtra("location_lng", place.location.lng)
-                    putExtra("location_lat", place.location.lat)
-                    putExtra("place_name", place.name)
-                }
+                val intent = Intent(parent.context, WeatherActivity::class.java)
                 fragment.startActivity(intent)
                 activity?.finish()
             }

@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import com.example.weather.logic.PlaceDatabase
 
 class MainActivity : AppCompatActivity() {
@@ -15,6 +14,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        //判断是否初次打开软件，是则跳转到搜索页面，不是则跳转到天气页面
         sharedPreferences = getSharedPreferences("com.example.weather.PREFERENCES", Context.MODE_PRIVATE)
         open = sharedPreferences.getString("open", "") ?: ""
 
@@ -27,8 +27,7 @@ class MainActivity : AppCompatActivity() {
             open = intent.getStringExtra("open")?:"1"
         }
 
-        Log.d("MainActivity",open)
-
+        //返回天气页面
         val placeDatabaseHelper = PlaceDatabase(this)
         val historyPlaces = placeDatabaseHelper.getHistoryPlaces()
         if (historyPlaces.isNotEmpty()) {
@@ -38,7 +37,6 @@ class MainActivity : AppCompatActivity() {
 
     // Handle the back navigation action
     override fun onSupportNavigateUp(): Boolean {
-        onBackPressed()
         return true
     }
 }
