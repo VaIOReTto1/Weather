@@ -48,7 +48,7 @@ class PlaceFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val layoutManager = LinearLayoutManager(activity)
 
-        if (activity is MainActivity&& (activity as MainActivity).open=="") {
+        if ((activity as MainActivity).open=="1") {
             val intent = Intent(context, WeatherActivity::class.java)
             startActivity(intent)
             activity?.finish()

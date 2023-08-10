@@ -58,7 +58,7 @@ class WeatherActivity : AppCompatActivity() {
         val addButton: ImageButton =findViewById(R.id.addButton)
         addButton.setOnClickListener {
             intent= Intent(this,MainActivity::class.java).apply {
-                putExtra("open", "1")
+                putExtra("open", "0")
             }
             startActivity(intent)
         }
