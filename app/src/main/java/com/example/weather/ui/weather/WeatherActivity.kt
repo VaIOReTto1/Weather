@@ -1,12 +1,15 @@
 package com.example.weather.ui.weather
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -15,13 +18,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import com.example.weather.MainActivity
 import com.example.weather.R
 import com.example.weather.logic.PlaceDatabase
-import com.example.weather.logic.model.HourlyForecast
 import com.example.weather.logic.model.Place
 import com.example.weather.logic.model.Weather
 import com.example.weather.logic.network.WeatherNetwork
-import com.github.mikephil.charting.charts.LineChart
+import com.example.weather.ui.place.PlaceFragment
 import kotlinx.coroutines.launch
 
 class WeatherActivity : AppCompatActivity() {
@@ -52,6 +55,13 @@ class WeatherActivity : AppCompatActivity() {
         val indicatorAdapter = IndicatorAdapter(weatherAdapter.itemCount)
         indicatorRecyclerView.adapter = indicatorAdapter
 
+        val addButton: ImageButton =findViewById(R.id.addButton)
+        addButton.setOnClickListener {
+            intent= Intent(this,MainActivity::class.java).apply {
+                putExtra("open", "1")
+            }
+            startActivity(intent)
+        }
 
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
@@ -96,13 +106,13 @@ class WeatherPagerAdapter(private val activity: AppCompatActivity) :
     FragmentStateAdapter(activity) {
     val placeDatabaseHelper = PlaceDatabase(activity)
     val historyPlaces = placeDatabaseHelper.getHistoryPlaces()
-    override fun getItemCount(): Int = 2
+    override fun getItemCount(): Int = historyPlaces.size
     override fun createFragment(position: Int): Fragment {
-        return when (position) {
-            0 -> createWeatherFragment(historyPlaces[0])
-            1 -> createWeatherFragment(historyPlaces[1])
-            else -> throw IllegalArgumentException("Invalid position: $position")
+        if (position < 0 || position >= historyPlaces.size) {
+            throw IllegalArgumentException("Invalid position: $position")
         }
+
+        return createWeatherFragment(historyPlaces[position])
     }
 
     private suspend fun fetchWeather(place: Place): Weather? {
@@ -110,8 +120,8 @@ class WeatherPagerAdapter(private val activity: AppCompatActivity) :
             val deferredRealtime = WeatherNetwork.getRealtimeWeather(place.location.lng, place.location.lat)
             val deferredDaily = WeatherNetwork.getDailyWeather(place.location.lng, place.location.lat)
             val deferredHour = WeatherNetwork.getHourlyWeather(place.location.lng, place.location.lat)
-
             if (deferredRealtime.status == "ok" && deferredDaily.status == "ok") {
+                Log.d("WeatherActivity",place.name)
                 Weather(
                     deferredRealtime.result.realtime,
                     deferredDaily.result.daily,
@@ -135,7 +145,6 @@ class WeatherPagerAdapter(private val activity: AppCompatActivity) :
                 weatherFragment.updateWeather(weather)
             }
         }
-
         return weatherFragment
     }
 }

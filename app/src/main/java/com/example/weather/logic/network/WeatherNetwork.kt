@@ -19,7 +19,6 @@ object WeatherNetwork {
             enqueue(object : Callback<T> {
                 override fun onResponse(call: Call<T>, response: Response<T>) {
                     val body = response.body()
-                    Log.d("WeatherNetwokr",body.toString())
                     if (body != null ) {
                         continuation.resume(body)
                     } else {

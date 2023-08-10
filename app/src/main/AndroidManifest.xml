@@ -20,6 +20,7 @@
             android:exported="false" />
         <activity
             android:name=".MainActivity"
+            android:parentActivityName=".ui.weather.WeatherActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

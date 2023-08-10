@@ -63,7 +63,6 @@ class PlaceDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
         val whereClause = "$COLUMN_NAME = ?"
         val whereArgs = arrayOf(place.name)
         writableDatabase.delete(TABLE_NAME, whereClause, whereArgs)
-        Log.d("PlaceDatabase", "Place deleted: ${place.name}")
     }
 
     fun getHistoryPlaces(): List<Place> {

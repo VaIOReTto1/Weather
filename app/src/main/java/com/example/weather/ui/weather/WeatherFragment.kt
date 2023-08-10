@@ -3,6 +3,7 @@ package com.example.weather.ui.weather
 import android.annotation.SuppressLint
 import android.icu.text.SimpleDateFormat
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -34,8 +35,9 @@ import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 import kotlinx.coroutines.launch
 import java.util.Locale
 
-class WeatherFragment(private val place: Place, ) : Fragment() {
+class WeatherFragment(private val place: Place) : Fragment() {
 
+    private var load=0
     private lateinit var weather: Weather
 
     private val hourlyForecastList = ArrayList<HourlyForecast>()
@@ -52,34 +54,6 @@ class WeatherFragment(private val place: Place, ) : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        lifecycleScope.launch {
-            try {
-                val alterButton: Button = view.findViewById(R.id.alterButton)
-                alterButton.visibility = View.GONE
-                val deferredAlter =
-                    WeatherNetwork.getAlterWeather(place.location.lng, place.location.lat)
-                if (deferredAlter.result.alert?.content != null) {
-                    val title = deferredAlter.result.alert.content[0]?.title
-                    val description = deferredAlter.result.alert.content[0]?.description
-                    alterButton.visibility = View.GONE
-                    alterButton.text = title
-                    alterButton.setOnClickListener {
-                        val builder = AlertDialog.Builder(requireContext())
-                        builder.setTitle(title)
-                        builder.setMessage("\n" + description)
-                        builder.setPositiveButton("OK", null)
-                        val dialog = builder.create()
-                        dialog.show()
-                    }
-                    alterButton.visibility = View.VISIBLE
-                }
-
-            }catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-
         val layoutManager = LinearLayoutManager(requireContext())
         layoutManager.orientation = LinearLayoutManager.HORIZONTAL
         val hourRecyclerView: RecyclerView = view.findViewById(R.id.hourRecyclerView)
@@ -87,6 +61,9 @@ class WeatherFragment(private val place: Place, ) : Fragment() {
         hourlyAdapter = HourlyAdapter(hourlyForecastList)
         hourRecyclerView.adapter = hourlyAdapter
         lineChart = view.findViewById(R.id.lineChart)
+
+        if (load==1)
+            showWeatherInfo(weather)
 
         hourRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -173,6 +150,33 @@ class WeatherFragment(private val place: Place, ) : Fragment() {
         humidity.text = realtime.humidity
         apprentTemperature.text = realtime.apparent_temperature
         weatherLayout.visibility = View.VISIBLE
+
+        lifecycleScope.launch {
+            try {
+                val alterButton: Button = view?.findViewById(R.id.alterButton) ?: return@launch
+                alterButton.visibility = View.GONE
+                val deferredAlter =
+                    WeatherNetwork.getAlterWeather(place.location.lng, place.location.lat)
+                if (deferredAlter.result.alert?.content != null) {
+                    val title = deferredAlter.result.alert.content[0]?.title
+                    val description = deferredAlter.result.alert.content[0]?.description
+                    alterButton.visibility = View.GONE
+                    alterButton.text = title
+                    alterButton.setOnClickListener {
+                        val builder = AlertDialog.Builder(requireContext())
+                        builder.setTitle(title)
+                        builder.setMessage("\n" + description)
+                        builder.setPositiveButton("OK", null)
+                        val dialog = builder.create()
+                        dialog.show()
+                    }
+                    alterButton.visibility = View.VISIBLE
+                }
+
+            }catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     private fun setupLineChart(lineChart: LineChart) {
@@ -221,6 +225,6 @@ class WeatherFragment(private val place: Place, ) : Fragment() {
 
     fun updateWeather(newWeather: Weather) {
         weather = newWeather
-        showWeatherInfo(weather)
+        load=1
     }
 }

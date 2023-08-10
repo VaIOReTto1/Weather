@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
@@ -45,18 +46,14 @@ class PlaceFragment : Fragment() {
     @SuppressLint("NotifyDataSetChanged")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (viewModel.isPlaceSaved() && activity is MainActivity) {
-            val place = viewModel.getSavePlace()
-            val intent = Intent(context, WeatherActivity::class.java).apply {
-                putExtra("location_lng", place.location.lng)
-                putExtra("location_lat", place.location.lat)
-                putExtra("place_name", place.name)
-            }
+        val layoutManager = LinearLayoutManager(activity)
+
+        if (activity is MainActivity&& (activity as MainActivity).open=="") {
+            val intent = Intent(context, WeatherActivity::class.java)
             startActivity(intent)
             activity?.finish()
             return
         }
-        val layoutManager = LinearLayoutManager(activity)
 
         val recyclerView: RecyclerView = view.findViewById(R.id.recycleView)
         val searchPlaceEdit: EditText = view.findViewById(R.id.searchPlaceEdit)
