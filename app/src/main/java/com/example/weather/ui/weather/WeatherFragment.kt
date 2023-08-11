@@ -3,6 +3,7 @@ package com.example.weather.ui.weather
 import android.annotation.SuppressLint
 import android.icu.text.SimpleDateFormat
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,6 +18,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.weather.R
 import com.example.weather.logic.model.HourlyForecast
 import com.example.weather.logic.model.Place
@@ -34,7 +36,7 @@ import kotlinx.coroutines.launch
 import java.util.Locale
 
 class WeatherFragment(private val place: Place) : Fragment() {
-    private var load=0
+    private var load = 0
     private lateinit var weather: Weather
 
     private val hourlyForecastList = ArrayList<HourlyForecast>()
@@ -59,9 +61,16 @@ class WeatherFragment(private val place: Place) : Fragment() {
         hourRecyclerView.adapter = hourlyAdapter
         lineChart = view.findViewById(R.id.lineChart)
 
+        val swipeRefresh: SwipeRefreshLayout = view.findViewById(R.id.swipeRefresh)
+        swipeRefresh.setColorSchemeResources(R.color.colorPrimary)
+
         //判断是否再viewpager中加载完毕
-        if (load==1)
+        if (load == 1) {
             showWeatherInfo(weather)
+            swipeRefresh.setOnRefreshListener {
+                refreshWeather()
+            }
+        }
 
         hourRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -108,7 +117,7 @@ class WeatherFragment(private val place: Place) : Fragment() {
 
         //解决重复加载预报天数问题
         forecastLayout.removeAllViews()
-//15天
+        //15天
         val days = daily.skycon.size
         for (i in 0 until days) {
             val skycon = daily.skycon[i]
@@ -174,7 +183,7 @@ class WeatherFragment(private val place: Place) : Fragment() {
                     alterButton.visibility = View.VISIBLE
                 }
 
-            }catch (e: Exception) {
+            } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
@@ -217,18 +226,34 @@ class WeatherFragment(private val place: Place) : Fragment() {
                 return value.toInt().toString()
             }
         }
+
         dataSet.setDrawIcons(false)
-
         lineChart.legend.isEnabled = false
-
         lineChart.moveViewToX(hourlyForecastList.size.toFloat())
-
         lineChart.invalidate()
     }
 
     //更新weather
     fun updateWeather(newWeather: Weather) {
         weather = newWeather
-        load=1
+        load = 1
+        showWeatherInfo(weather)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (load == 1)
+            refreshWeather()
+    }
+
+    private fun refreshWeather() {
+        val swipeRefresh: SwipeRefreshLayout? = view?.findViewById(R.id.swipeRefresh)
+        val hourRecyclerView: RecyclerView? = view?.findViewById(R.id.hourRecyclerView)
+        hourRecyclerView?.scrollToPosition(0)
+        val weatherLayout:ScrollView?=view?.findViewById(R.id.weatherLayout)
+        weatherLayout?.post { weatherLayout.scrollTo(0,0) }
+        val lineChart:LineChart?=view?.findViewById(R.id.lineChart)
+        lineChart?.post { lineChart.scrollTo(0,0) }
+        swipeRefresh?.isRefreshing = false
     }
 }

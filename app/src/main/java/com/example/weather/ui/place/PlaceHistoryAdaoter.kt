@@ -46,7 +46,6 @@ class PlaceHistoryAdapter(private val fragment: PlaceFragment, private val place
                 activity.viewModel.locationLng = place.location.lng
                 activity.viewModel.locationLat = place.location.lat
                 activity.viewModel.placeName = place.name
-
             } else {
                 val intent = Intent(parent.context, WeatherActivity::class.java)
                 fragment.startActivity(intent)
