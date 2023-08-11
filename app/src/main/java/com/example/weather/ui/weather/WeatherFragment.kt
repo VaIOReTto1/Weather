@@ -3,7 +3,6 @@ package com.example.weather.ui.weather
 import android.annotation.SuppressLint
 import android.icu.text.SimpleDateFormat
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -67,9 +66,6 @@ class WeatherFragment(private val place: Place) : Fragment() {
         //判断是否再viewpager中加载完毕
         if (load == 1) {
             showWeatherInfo(weather)
-            swipeRefresh.setOnRefreshListener {
-                refreshWeather()
-            }
         }
 
         hourRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -238,6 +234,10 @@ class WeatherFragment(private val place: Place) : Fragment() {
         weather = newWeather
         load = 1
         showWeatherInfo(weather)
+        val swipeRefresh: SwipeRefreshLayout? = view?.findViewById(R.id.swipeRefresh)
+        swipeRefresh?.setOnRefreshListener {
+            refreshWeather()
+        }
     }
 
     override fun onResume() {

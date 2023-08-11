@@ -9,10 +9,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
-import android.widget.ScrollView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -24,13 +22,9 @@ import com.example.weather.logic.PlaceDatabase
 import com.example.weather.logic.model.Place
 import com.example.weather.logic.model.Weather
 import com.example.weather.logic.network.WeatherNetwork
-import com.github.mikephil.charting.charts.LineChart
 import kotlinx.coroutines.launch
 
 class WeatherActivity : AppCompatActivity() {
-
-    val viewModel by lazy { ViewModelProvider(this)[WeatherViewModel::class.java] }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.viewpager)
@@ -45,12 +39,23 @@ class WeatherActivity : AppCompatActivity() {
         val indicatorRecyclerView: RecyclerView = findViewById(R.id.indicatorRecyclerView)
         val weatherAdapter = WeatherPagerAdapter(this)
         viewPager.adapter = weatherAdapter
+        val intentPosition = intent.getIntExtra("position", 0)
 
         //创建指示标
         val layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         indicatorRecyclerView.layoutManager = layoutManager
-        val indicatorAdapter = IndicatorAdapter(weatherAdapter.itemCount)
+        val indicatorAdapter = IndicatorAdapter(weatherAdapter.itemCount,intentPosition)
         indicatorRecyclerView.adapter = indicatorAdapter
+        // 设置初始选中页面
+        textView.text = historyPlaces[intentPosition].name
+        viewPager.setCurrentItem(intentPosition, false)
+        //获取位置更新toolbar标题
+        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                indicatorAdapter.setSelectedPosition(position)
+                textView.text = historyPlaces[position].name
+            }
+        })
 
         //进入搜索页面
         val addButton: ImageButton =findViewById(R.id.addButton)
@@ -60,19 +65,11 @@ class WeatherActivity : AppCompatActivity() {
             }
             startActivity(intent)
         }
-
-        //获取位置更新toolbar标题
-        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                indicatorAdapter.setSelectedPosition(position)
-                textView.text = historyPlaces[position].name
-            }
-        })
     }
 }
 
-class IndicatorAdapter(private val pageCount: Int) : RecyclerView.Adapter<IndicatorViewHolder>() {
-    private var selectedPosition = 0
+class IndicatorAdapter(private val pageCount: Int, position: Int) : RecyclerView.Adapter<IndicatorViewHolder>() {
+    private var selectedPosition = position
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): IndicatorViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.tab_item, parent, false)

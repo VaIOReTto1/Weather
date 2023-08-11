@@ -3,6 +3,7 @@ package com.example.weather.ui.place
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -135,7 +136,7 @@ class PlaceFragment : Fragment() {
         val database = PlaceDatabase(requireContext())
         database.deletePlace(place)
         val historyPlaces = placeDatabaseHelper.getHistoryPlaces()
-        historyAdapter = PlaceHistoryAdapter(this, historyPlaces)
+        historyAdapter.placeList = historyPlaces
         historyAdapter.notifyDataSetChanged()
     }
 }
