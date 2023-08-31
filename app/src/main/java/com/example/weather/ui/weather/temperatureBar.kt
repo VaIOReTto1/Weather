@@ -22,7 +22,7 @@ class TemperatureChartView(context: Context, attrs: AttributeSet) : View(context
     private var currentTemperaturePercentageVisible:Boolean=false
     private var currentMinColor = getTemperatureColor(currentMin)// 这里应该是你的颜色转换逻辑
     private var currentMaxColor = getTemperatureColor(currentMax) // 这里应该是你的颜色转换逻辑
-    private val num = max - min
+    private var num = max - min
 
     private val gradientShader: Shader = LinearGradient(
         (width / num.toFloat()) * (currentMin - min), 0f,
@@ -46,6 +46,7 @@ class TemperatureChartView(context: Context, attrs: AttributeSet) : View(context
         this.currentMax=currentMax
         this.currentTemperature=currentTemperature
         this.currentTemperaturePercentageVisible=currentTemperaturePercentageVisible
+        this.num = max - min
         currentMinColor = getTemperatureColor(currentMin)
         currentMaxColor = getTemperatureColor(currentMax)
         invalidate()
@@ -65,7 +66,7 @@ class TemperatureChartView(context: Context, attrs: AttributeSet) : View(context
                 0f, 0f, width.toFloat(), 0f,
                 linePaint.apply {
                     color = android.graphics.Color.GRAY
-                    strokeWidth = 20f
+                    strokeWidth = 24f
                 }
             )
 
@@ -83,7 +84,7 @@ class TemperatureChartView(context: Context, attrs: AttributeSet) : View(context
             // 绘制渐变温度线条
             drawLine(gradientStartX, 0f, gradientEndX, 0f, linePaint.apply {
                 shader = gradientShader
-                strokeWidth = 20f
+                strokeWidth = 24f
             })
 
             if (currentTemperaturePercentageVisible){
@@ -96,7 +97,7 @@ class TemperatureChartView(context: Context, attrs: AttributeSet) : View(context
                 }
 
                 // 绘制小白圆点
-                drawCircle(dotX.toFloat(), 5f, 7f, dotPaint) // 调整圆点半径为您想要的大小
+                drawCircle(dotX.toFloat(), 6f, 7f, dotPaint) // 调整圆点半径为您想要的大小
             }
         }
     }

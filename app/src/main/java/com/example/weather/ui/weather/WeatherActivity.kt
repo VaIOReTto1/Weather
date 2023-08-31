@@ -1,7 +1,9 @@
 package com.example.weather.ui.weather
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -10,6 +12,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -23,6 +27,8 @@ import com.example.weather.logic.model.Place
 import com.example.weather.logic.model.Weather
 import com.example.weather.logic.network.WeatherNetwork
 import kotlinx.coroutines.launch
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 
 class WeatherActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,6 +72,8 @@ class WeatherActivity : AppCompatActivity() {
             startActivity(intent)
         }
     }
+
+
 }
 
 class IndicatorAdapter(private val pageCount: Int, position: Int) : RecyclerView.Adapter<IndicatorViewHolder>() {

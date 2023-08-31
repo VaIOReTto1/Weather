@@ -3,6 +3,7 @@ package com.example.weather.ui.weather
 import android.annotation.SuppressLint
 import android.icu.text.SimpleDateFormat
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -122,6 +123,7 @@ class WeatherFragment(private val place: Place) : Fragment() {
             if(temperature.min.toInt()<min) min=temperature.min.toInt()
             if (temperature.max.toInt()>max) max=temperature.max.toInt()
         }
+        Log.d("WeatherFragment","$min,$max")
         for (i in 0 until days) {
             val skycon = daily.skycon[i]
             val temperature = daily.temperature[i]

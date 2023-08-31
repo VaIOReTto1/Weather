@@ -91,4 +91,6 @@ class PlaceDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
     fun clearHistory() {
         writableDatabase.delete(TABLE_NAME, null, null)
     }
+
+
 }
