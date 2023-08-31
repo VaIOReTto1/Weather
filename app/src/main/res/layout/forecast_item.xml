@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:orientation="horizontal"
     android:layout_margin="15dp">
 
     <TextView
@@ -9,7 +10,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:layout_weight="4" />
+        android:layout_weight="3" />
 
     <ImageView
         android:id="@+id/skyIcon"
@@ -21,14 +22,32 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:layout_weight="3"
+        android:layout_weight="2"
         android:gravity="center" />
 
     <TextView
-        android:id="@+id/temperatureInfor"
+        android:id="@+id/temperatureMinInfor"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
+        android:layout_weight="1"
+        android:gravity="end" />
+
+    <com.example.weather.ui.weather.TemperatureChartView
+        android:id="@+id/temperatureBar"
+        android:layout_width="0dp"
         android:layout_weight="3"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="5dp"
+        android:layout_height="12dp" />
+
+    <TextView
+        android:id="@+id/temperatureMaxInfor"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="1"
         android:gravity="end" />
 </LinearLayout>

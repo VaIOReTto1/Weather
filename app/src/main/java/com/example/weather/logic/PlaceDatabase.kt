@@ -10,6 +10,10 @@ import com.example.weather.logic.model.Place
 
 class PlaceDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
+    init{
+
+    }
+
     companion object {
         private const val DATABASE_VERSION = 1
         private const val DATABASE_NAME = "place_history.db"

@@ -76,7 +76,7 @@ class WeatherFragment(private val place: Place) : Fragment() {
         })
     }
 
-    @SuppressLint("NotifyDataSetChanged")
+    @SuppressLint("NotifyDataSetChanged", "SetTextI18n")
     fun showWeatherInfo(weather: Weather) {
         val realtime = weather.realtime
         val daily = weather.daily
@@ -115,6 +115,13 @@ class WeatherFragment(private val place: Place) : Fragment() {
         forecastLayout.removeAllViews()
         //15天
         val days = daily.skycon.size
+        var max:Int=daily.temperature[0].min.toInt()
+        var min:Int=daily.temperature[0].min.toInt()
+        for (i in 1 until days){
+            val temperature = daily.temperature[i]
+            if(temperature.min.toInt()<min) min=temperature.min.toInt()
+            if (temperature.max.toInt()>max) max=temperature.max.toInt()
+        }
         for (i in 0 until days) {
             val skycon = daily.skycon[i]
             val temperature = daily.temperature[i]
@@ -125,15 +132,26 @@ class WeatherFragment(private val place: Place) : Fragment() {
             val dateInfo = view.findViewById(R.id.dateInfo) as TextView
             val skyIcon = view.findViewById(R.id.skyIcon) as ImageView
             val skyInfo = view.findViewById(R.id.skyInfo) as TextView
-            val temperatureInfo = view.findViewById(R.id.temperatureInfor) as TextView
+            val temperatureminInfo = view.findViewById(R.id.temperatureMinInfor) as TextView
+            val temperaturemaxInfo = view.findViewById(R.id.temperatureMaxInfor) as TextView
             val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
             dateInfo.text = simpleDateFormat.format(skycon.date)
             val sky = getSky(skycon.value)
             skyIcon.setImageResource(sky.icon)
             skyInfo.text = sky.info
-            val tempText = "${temperature.min.toInt()} ~ ${temperature.max.toInt()} ℃"
-            temperatureInfo.text = tempText
+            temperatureminInfo.text = temperature.min.toInt().toString() + '℃'
+            temperaturemaxInfo.text = temperature.max.toInt().toString() + '℃'
+            val temperatureBar: TemperatureChartView =
+                view.findViewById(R.id.temperatureBar) ?: return
+            temperatureBar.setCurrentTemperature(
+                realtime.temperature.toInt(),
+                min,
+                max,
+                temperature.min.toInt(),
+                temperature.max.toInt(),
+                i == 0
+            )
             forecastLayout.addView(view)
         }
 
@@ -250,10 +268,10 @@ class WeatherFragment(private val place: Place) : Fragment() {
         val swipeRefresh: SwipeRefreshLayout? = view?.findViewById(R.id.swipeRefresh)
         val hourRecyclerView: RecyclerView? = view?.findViewById(R.id.hourRecyclerView)
         hourRecyclerView?.scrollToPosition(0)
-        val weatherLayout:ScrollView?=view?.findViewById(R.id.weatherLayout)
-        weatherLayout?.post { weatherLayout.scrollTo(0,0) }
-        val lineChart:LineChart?=view?.findViewById(R.id.lineChart)
-        lineChart?.post { lineChart.scrollTo(0,0) }
+        val weatherLayout: ScrollView? = view?.findViewById(R.id.weatherLayout)
+        weatherLayout?.post { weatherLayout.scrollTo(0, 0) }
+        val lineChart: LineChart? = view?.findViewById(R.id.lineChart)
+        lineChart?.post { lineChart.scrollTo(0, 0) }
         swipeRefresh?.isRefreshing = false
     }
 }

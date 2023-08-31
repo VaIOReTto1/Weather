@@ -1,0 +1,9 @@
+<resources>
+    <declare-styleable name="TemperatureChart">
+        <attr name="minTemperature" format="integer" />
+        <attr name="maxTemperature" format="integer" />
+        <attr name="currentMinTemperature" format="integer" />
+        <attr name="currentMaxTemperature" format="integer" />
+        <attr name="currentTemperature" format="integer" />
+    </declare-styleable>
+</resources>
